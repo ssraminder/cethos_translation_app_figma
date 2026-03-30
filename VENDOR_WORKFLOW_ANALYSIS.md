@@ -170,17 +170,31 @@ All 33 template steps use `assignment_mode = manual` with `auto_assign_rule = nu
 
 ---
 
-### GAP 8: Deadline Management — Reactive Only
+### GAP 8: Deadline Management — NOW ACTIVATED
 
-- `vendor-deadline-reminders` edge function exists
-- `expire-stale-offers` edge function exists
-- 4 `vendor_missed_deadline` notifications sent (all reactive)
-- No proactive reminders before deadline
+**Cron jobs were already scheduled (every 15 min):**
+- `expire-stale-offers` (job 29)
+- `vendor-deadline-reminders` (job 33)
+- `check-missed-deadlines` (job 32)
 
-**Fix needed:**
-1. Schedule `vendor-deadline-reminders` as a cron job (every 15 min)
-2. Schedule `expire-stale-offers` as a cron job (every 5 min)
-3. Add escalation: warn PM when vendor is at 75% of deadline with no delivery
+**Upgrades deployed (2026-03-30):**
+
+1. **`vendor-deadline-reminders` v3** — Multi-stage reminders:
+   - 48h: "Due in less than 48 hours"
+   - 24h: "Due in less than 24 hours"
+   - 4h: "Due in less than 4 hours" (urgent styling)
+   - 1h: "URGENT — due in less than 1 hour" (red styling)
+   - Each stage fires only once per step (tracked via `metadata.reminder_stage`)
+   - Supports both external vendors and internal staff
+
+2. **`check-missed-deadlines` v2** — Now notifies both:
+   - Admin: `vendor_missed_deadline` event (as before)
+   - Vendor: `deadline_reminder` with `stage: overdue` and "OVERDUE" styling
+
+3. **`send-workflow-notification` v2** — Enhanced deadline email template:
+   - Urgency-based color coding (blue → amber → red)
+   - Different subject prefixes: Reminder / URGENT / OVERDUE
+   - Styled alert banner with stage-appropriate icons
 
 ---
 
