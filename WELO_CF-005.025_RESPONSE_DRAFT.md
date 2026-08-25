@@ -29,43 +29,52 @@ of ORG-001 and JD-001 is attached (Attachments 1 and 2).
 **Q2. Please provide an outline of your training for new staff (compliance to ICH E6, GCP, health
 information privacy, GDPR). How is it documented?**
 
-**[UPGRADE BY 31 AUG — see F-2]**
+New staff complete structured onboarding under SOP-002 *Training and Competency Assessment*, delivered
+through the Cethos portal training system. Staff courses cover QMS and SOP onboarding (TRN-S-001), ISO 17100
+awareness, ISO 27001 security awareness, confidentiality and data protection, CAPA and complaint handling,
+QA sign-off, incident response, and role-specific operations tracks for project managers, reviewers and
+vendor managers. Staff supporting clinical trial work are additionally assigned GCP training aligned to ICH
+E6 (R3). Assessed courses carry a quiz with an 80% pass threshold.
 
-*Answer if the GCP module is live by 31 Aug (preferred):*
-New staff complete onboarding under SOP-002 *Training and Competency Assessment*: QMS orientation (QM-001,
-QP-001, SOP-001), confidentiality and data protection (SOP-014, PIPEDA/GDPR obligations, NDA execution),
-role-specific procedures, and — for anyone supporting clinical trial translation work — an ICH E6 (R3) Good
-Clinical Practice module. Completion is recorded per staff member in the Cethos portal training register
-(REG-TRN-S-001) against FORM-TR-001 *Staff Training & Competence Record*, with date, assessment score and
-competence basis. Records are retained as controlled quality records and reviewed at Management Review
+Every completion is recorded per person in the portal with course, date, method, quiz score where
+applicable, and — for online completions — the completion IP address and user agent, giving attributable,
+timestamped training records. **2,740 completions are recorded across staff and linguists between 26 June
+and 24 August 2026.** Records are retained as controlled quality records and reviewed at Management Review
 (SOP-013).
 
-*Answer if the module is not yet live (must be used instead — do not claim records that do not exist):*
-…as above, but replace the GCP sentence with: "An ICH E6 (R3) GCP module for staff supporting clinical trial
-translation projects is being deployed to the Cethos training system, target 31 August 2026; this was
-identified in our June 2026 IQVIA qualification audit and is being addressed on a voluntary basis."
+**[CONFIRM before sending — see F-2.]** The GCP course for project staff currently has 8 staff assigned and
+**0 completions**. If those complete before you send, this answer is fully supported. If not, add: "GCP
+training for staff supporting clinical trial translation projects is currently in progress, with completion
+targeted for 31 August 2026."
 
 **Q3. How do you ensure employees are kept up to date on linguistic validation requirements for COAs
 (cognitive debriefing and clinician review)?**
 
-Methodology is maintained in controlled procedures rather than individual knowledge: SOP-008 *Cognitive
-Debriefing*, SOP-009 *Clinician Reviews*, SOP-019 *COA Linguistic Validation Qualification*, and SOP-029 to
-SOP-038 covering each standalone LV step. All are aligned to ISPOR good practice and FDA/EMA PRO guidance
-and are reviewed at least annually under SOP-001, with revisions requiring re-approval. When a procedure
-changes, affected staff are re-briefed and the briefing recorded in REG-TRN-S-001. Client and sponsor
-methodology requirements are captured per project at intake (SOP-008 §7 / SOP-009 §7). **[CONFIRM: that
-re-briefing on SOP change is your actual practice.]**
+Through controlled procedures plus assigned training, not individual knowledge. Methodology is maintained in
+SOP-008 *Cognitive Debriefing*, SOP-009 *Clinician Reviews*, SOP-019 *COA Linguistic Validation
+Qualification* and SOP-029 to SOP-038 covering each standalone LV step, all aligned to ISPOR good practice
+and FDA/EMA PRO guidance and reviewed at least annually under SOP-001.
+
+These are reinforced by dedicated courses in the portal training system, including ISPOR Methodology
+(assessed), COA Linguistic Validation, the COA/LV workflow track, Cognitive Debriefing interviewer guidance
+and data capture, post-debriefing analysis and QM review (assessed), forward translation, reconciliation and
+back-translation independence. Courses exist in both staff and linguist versions so internal PMs and
+external practitioners are trained to the same methodology. Completions are recorded per person with date
+and quiz score. When a procedure is revised, affected staff are re-briefed and the briefing recorded.
 
 **Q4. Please provide an outline of your training program for ongoing staff development. How is this
 documented?**
 
-**[UPGRADE BY 31 AUG — see F-2]** Ongoing development is governed by SOP-002. It comprises annual
-re-qualification against role competence (SOP-019 §5 — 12-monthly, and on any serious quality event),
-procedure re-briefing on SOP revision, and role-specific guides maintained as controlled training documents
-(for example TRN-COA-001 *Logging COA Jobs & Client Review Rounds* and TRN-RWS-001 *Onboarding an RWS
-Linguistic-Validation PO*). Development needs and training effectiveness are standing agenda items at
-Management Review (SOP-013, MRS-2026-001). Completions are recorded in REG-TRN-S-001.
-**[CONFIRM: only send this if completion records exist by the send date — today the register is empty.]**
+Ongoing development is governed by SOP-002 and delivered through the same portal training system, which
+holds 32 active courses across 175 lessons — 18 for staff and 14 for linguists — spanning quality, security,
+compliance, project management, vendor management, audit and COA methodology. Development comprises annual
+re-qualification against role competence (SOP-019 §5 — 12-monthly and on any serious quality event),
+procedure re-briefing on SOP revision, and assignment of new or updated courses as processes change. An
+internal auditor training track supports SOP-012.
+
+Documentation is per person and per course: assignment date, due date, completion date, method, quiz score
+against an 80% pass bar, and completion IP and user agent for online completions. Training status and
+effectiveness are standing agenda items at Management Review (SOP-013, MRS-2026-001).
 
 **Q5. Do you outsource tasks to external suppliers?**
 
@@ -311,15 +320,20 @@ SOPs where the registry holds 44.]**
 
 **Q7. Is SOP training carried out and documented?**
 
-**[UPGRADE BY 31 AUG — see F-2 and F-3.]** SOP training is required under SOP-002: staff are trained on the
-procedures relevant to their role at onboarding and re-briefed when a procedure is revised, with completion
-recorded per staff member in REG-TRN-S-001 against FORM-TR-001. Controlled documents are published through a
-three-signature electronic sign-off — prepared, independently reviewed and approved by distinct
-authenticated staff, each signature recorded with printed name, UTC timestamp and meaning of signature in an
-append-only audit log, with a system-generated Approval Certificate issued per version.
-**[CONFIRM: the sign-off control is currently enforced on the three QMS Core documents, not all 44. Either
-extend it before sending or describe its actual scope — do not repeat the broader wording used in the IQVIA
-CAPA response.]**
+Yes. SOP training is required under SOP-002 and delivered through the portal training system. Staff complete
+a dedicated *Staff SOP & QMS Onboarding* course (TRN-S-001, assessed) at induction, with role-specific SOP
+tracks thereafter; external linguists complete an equivalent *Linguist SOP Induction* (TRN-V-001, assessed).
+Staff are re-briefed when a procedure is revised. Every completion is recorded per person with date, method,
+quiz score against an 80% pass threshold, and completion IP and user agent for online completions.
+
+Controlled documents are published through a three-signature electronic sign-off — prepared, independently
+reviewed and approved by distinct authenticated staff, each signature recorded with printed name, UTC
+timestamp and meaning of signature in an append-only audit log, with a system-generated Approval Certificate
+issued per version.
+
+**[CONFIRM — see F-3.]** The sign-off control is currently enforced on the three QMS Core documents, not on
+all 44. Either extend it before sending or describe its actual scope. Do not repeat the broader wording used
+in the IQVIA CAPA response.
 
 ---
 

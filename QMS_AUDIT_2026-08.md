@@ -29,20 +29,25 @@ The QMS is real, documented and, in most control areas, genuinely strong: 44 act
 document registry, row-level security on 386 of 387 tables, tested backup/restore, 4,151 vendor
 e-signatures, and a closed IQVIA qualification audit with **no critical and no major findings**.
 
-The exposure is not the framework. It is that **three of the areas Welo asks about most directly are the
-three areas where live evidence is thinnest** — clinician qualification evidence, staff training records, and
-demonstrable corrective action. Two of them are open IQVIA commitments that fall due this week.
+There is also a substantial staff and linguist training pipeline — 32 courses, 175 lessons, 175 quiz
+questions and **2,740 recorded completions between 26 June and 24 August 2026**, 1,894 of them carrying
+completion IP and user-agent metadata. It is live and running as recently as yesterday.
+
+The exposure is narrower than the framework suggests: **the clinician cohort is the one population the
+training pipeline never reached**, and demonstrable corrective action has no live register. Both touch
+questions Welo asks directly, and the GCP element is an open IQVIA commitment that falls due this week.
 
 | # | Finding | Severity | Welo question(s) hit |
 |---|---|---|---|
 | F-1 | Clinician roster does not meet Cethos's own "Qualified" bar in SOP-019 §6.2 | **Major** | 2.1 all six |
-| F-2 | Staff training system holds no records at all | **Major** | General Q2, Q3, Q4 |
+| F-2 | GCP training exists and runs, but has not reached staff or clinicians | Minor | General Q2, Q3, Q4 |
 | F-3 | IQVIA CAPA closure statement overstates document-control coverage | **Major** | QMS Q6, Q7 |
 | F-4 | SOP register has drifted from the live registry again | Minor | QMS Q6 |
 | F-5 | Welo asks about focus groups; Cethos documents individual interviews | Minor | 2.2 Q2, Q6 |
 | F-6 | No live CAPA / nonconformity register in the portal | Minor | QMS Q2, Q3 |
 | F-7 | One public table without row-level security | Observation | IT Q4 |
 | F-8 | Quality function is not independent of the CEO | Observation | QMS Q1 |
+| F-9 | Two divergent training-completion stores, plus dead legacy schema | Minor | General Q2 |
 
 ---
 
@@ -75,30 +80,49 @@ this, including *"Are CVs and qualifications kept for all Clinicians? Can these 
 and/or the Clinical Trial Sponsor if necessary for audit purposes?"* Answering "yes, all our clinicians are
 qualified" would contradict Cethos's own SOP if tested.
 
-**Action before 31 Aug:** either (a) record the GCP status and verify at least one evidence item for the
-clinicians actually working Welo projects, so a defensible subset is genuinely Qualified, or (b) answer
-honestly on the Provisional + 100%-QA compensating-control basis. Option (a) for the working subset is
-achievable in days and is much the stronger answer. The 8 clinicians with no CV on file should be chased or
-made inactive either way.
+**Action before 31 Aug:** option (a) is more achievable than it first appears. A working GCP course
+(`gcp-clinical-linguists`) already exists and 44 linguists have completed it since June — the clinicians were
+simply never enrolled (F-2). Assign it to the clinicians working Welo projects, verify at least one evidence
+item each, and a defensible subset becomes genuinely Qualified within the window. Failing that, (b) answer
+honestly on the Provisional + 100%-QA compensating-control basis. The 8 clinicians with no CV on file should
+be chased or made inactive either way.
 
-### F-2 — Staff training records (Major)
+Note one wiring defect behind this: `clinician_roster.gcp_trained` reads a manually-set boolean on
+`clinician_profiles` and is **not connected to the training system at all**. Even once a clinician completes
+GCP, the qualification record will not update unless someone sets the flag by hand. Fix the link, or the same
+gap reappears at the next audit.
 
-The portal's training subsystem is **empty**: 0 training modules, 0 lessons, 0 slides, 0 staff progress
-records. Supporting evidence exists only as 10 staff competence rows, 13 staff documents and 8 staff NDAs.
+### F-2 — GCP training exists and runs, but has not reached staff or clinicians (Minor)
 
-Two commitments are already outstanding against this:
+**This finding was originally recorded as a major "no training records exist". That was wrong** — it was
+based on the legacy `training_modules` / `staff_training_progress` tables, which are empty dead schema. The
+live pipeline is the CVP training system, and it is substantial:
 
-- **NC-2026-00005** ("Staff training completions not recorded", CAPA-00005) was due **15 Aug 2026** — overdue.
-- **IQVIA Observation 1** (no ICH E6 (R3) GCP training requirement or records) carries a voluntary Cethos
-  commitment to add a GCP training module by **31 Aug 2026** — six days away, nothing built.
+| Measure | Value |
+|---|---|
+| Courses (18 staff-audience, 14 linguist-audience) | 32 |
+| Lessons / quiz questions | 175 / 175 |
+| Assignments | 3,240 (135 staff across 16 people; 3,105 vendor across 1,935) |
+| **Completions recorded** | **2,740** (26 Jun – 24 Aug 2026, still running) |
+| Completions with IP + user-agent captured | 1,894 |
+| Completions with a quiz score (pass bar 80%) | 692 |
 
-Welo asks three separate training questions in the General section, one of which names *"ICH E6, Good
-Clinical Practice, health information privacy, GDPR"* explicitly, and each asks **"How is it documented?"**
-Today there is no documented answer.
+GCP training is not missing either. Two courses exist — `gcp-clinical-linguists` and
+`gcp-clinical-project-staff` — and **44 linguists have completed GCP since 26 June, the most recent on
+24 August**.
 
-**Action:** this is the highest-value fix available before the meeting, because it discharges an IQVIA
-commitment and answers three Welo questions at once. Stand up the GCP module and record completions for
-the staff supporting COA work; FORM-TR-001 and REG-TRN-S-001 already exist as the controlled templates.
+What is genuinely wrong is narrower and sharper:
+
+1. **The staff GCP course is mis-audienced.** `gcp-clinical-project-staff` is titled for clinical project
+   staff but carries `audience = 'linguist'`. Eight staff are assigned to it and **zero have completed it**.
+   The voluntary ICH E6 (R3) commitment made to IQVIA is due **31 August** — six days away, with 0 of 8 done.
+2. **No clinician has been assigned GCP at all.** Of the 44 vendors who completed GCP, **none is on the
+   Clinical Validation roster**. The 37 clinicians were never enrolled. This is the direct cause of F-1.
+
+**Action:** re-audience `gcp-clinical-project-staff` to `staff` and chase the 8 assigned completions before
+31 Aug; assign `gcp-clinical-linguists` to the clinician roster. The course content, quiz, pass threshold and
+completion-recording all already exist — this is enrolment and follow-through, not build work, which is why
+it is achievable inside the window.
 
 ### F-3 — IQVIA CAPA closure statement overstates coverage (Major)
 
@@ -195,6 +219,21 @@ by the same person.
 approval authority, proportionate to company size. Do not claim organisational independence Cethos does not
 have; auditors accept proportionality, they do not accept overstatement.
 
+### F-9 — Two divergent training-completion stores, plus dead legacy schema (Minor)
+
+Training completion is recorded in two places that disagree. `cvp_training_assignments.completed_at` reports
+**0** completions for both GCP courses, while `cvp_training_completions` reports **45**. Separately, the
+legacy `training_modules`, `training_lessons`, `training_slides` and `staff_training_progress` tables are
+present but entirely empty.
+
+An auditor — or an internal reviewer preparing a response — who queries the wrong table concludes that no
+training exists. That is exactly what happened in the first pass of this audit. Under ALCOA+ a record that
+contradicts its own counterpart is a data-integrity issue in its own right, independent of which number is
+correct.
+
+**Action:** make the completions table the single source of truth and have assignments derive from it (or
+sync on write), and drop the empty legacy tables so they cannot be mistaken for the system of record.
+
 ---
 
 ## 4. Open commitments already made to IQVIA
@@ -204,12 +243,16 @@ sponsor draws conclusions.
 
 | Commitment | Source | Due | Status 25 Aug |
 |---|---|---|---|
-| ICH E6 (R3) GCP training module for COA staff | Obs. 1, voluntary | **31 Aug 2026** | Not started (F-2) |
+| ICH E6 (R3) GCP training module for COA staff | Obs. 1, voluntary | **31 Aug 2026** | Course built; 0 of 8 assigned staff complete (F-2) |
 | SOP-001 v2.1 — release checklist requires signature verification | Preventive action 1 | 30 Sep 2026 | Not evidenced |
-| Document-control training refresh on GDP signatures | Preventive action 3 | 30 Sep 2026 | Not evidenced (F-2) |
+| Document-control training refresh on GDP signatures | Preventive action 3 | 30 Sep 2026 | Not evidenced as a course |
 | Full Cethos Portal validated to 21 CFR Part 11 | Obs. 2, voluntary | 30 Oct 2026 | On plan (COA module already compliant) |
 
-Carried over from REG-AF-001 and still open past due date: NC-2026-00005 (training records, due 15 Aug),
+NC-2026-00005 ("staff training completions not recorded", due 15 Aug) should be reassessed — 106 staff
+completions are now recorded across 16 people, so the corrective action appears substantially delivered even
+though the register was never updated to say so.
+
+Also carried over from REG-AF-001 and still open past due date:
 NC-2026-00006 (competence basis, due 31 Aug), NC-2026-00009 (assignment gate in warn mode, due 31 Jul).
 
 ---
@@ -228,6 +271,10 @@ Verified live, and worth putting in front of Welo:
   CSV-002 evidences the COA module meeting 21 CFR Part 11 — confirmed by IQVIA's own auditor.
 - **Backup and recovery.** PITR plus independent AWS S3 replica, restore-tested three ways
   (CTS-REC-RST-002/003/004), plus a BCDR tabletop exercise record.
+- **Training pipeline.** 32 courses across staff and linguist audiences, 175 lessons and 175 quiz questions,
+  2,740 recorded completions since June with IP and user-agent captured on 1,894 of them and quiz scores on
+  692 against an 80% pass bar. This is a genuine, attributable training record system — it is simply not yet
+  reaching the clinician roster.
 - **Internal audit and management review.** SOP-012/SOP-013 with a real audit programme (IA-2026-001/002/004)
   and IAP-2026-001 / MRS-2026-001.
 - **A closed sponsor audit.** IQVIA qualification audit, 29–30 June 2026: zero critical, zero major, one
@@ -241,12 +288,14 @@ Verified live, and worth putting in front of Welo:
 |---|---|---|---|
 | 1 | Open the on-time-delivery CAPA (F-6) | QM | 2h |
 | 2 | Record GCP status + verify one evidence item for clinicians on Welo work (F-1) | Clinical Validation Dir. | 1–2d |
-| 3 | Stand up the GCP training module and record completions (F-2, discharges IQVIA commitment) | QM | 2–3d |
+| 3 | Re-audience the staff GCP course, chase 8 completions, enrol clinicians (F-2, discharges IQVIA commitment) | QM | 1d + chase |
 | 4 | Reconcile QM-002 to the live registry and re-issue (F-4) | QM | 3h |
 | 5 | Extend `requires_signoff` to remaining controlled docs, or re-scope the IQVIA closure statement (F-3) | QM / IT | 1d |
 | 6 | Fix QM-001 v5.8 reviewer so preparer ≠ reviewer (F-3) | QM | 30m |
 | 7 | Publish or withdraw CTS-COA-CD-FG-001 (F-5) | Clinical Validation Dir. | 1h |
 | 8 | Enable RLS on or drop `_tm_reconcile_staging` (F-7) | IT | 15m |
+| 9 | Wire `clinician_profiles.gcp_trained` to training completions (F-1, F-2) | IT | 2h |
+| 10 | Reconcile the two completion stores; drop the empty legacy tables (F-9) | IT | 3h |
 
 Items 1–4 are the ones that change what Cethos can truthfully write on the questionnaire. Items 5–8 are
 what an auditor finds if they look past the answers.
