@@ -116,7 +116,8 @@ rather than exact counts. Lives in `cethos_app_figma_design_v1`.
 
 ### 4.2 Three cron jobs that have never succeeded
 
-**0 successes across 3,363 runs** in all retained history.
+**0 successes across 3,363 runs** in all retained history. Four more broken jobs — the storage
+retention purges — are covered in section 5.2, bringing the total to **seven**.
 
 | Job | Schedule | Failure |
 |---|---|---|
@@ -227,7 +228,117 @@ allocation.
 
 ---
 
-## 5. Monitoring
+## 5. Storage and backup
+
+Investigated separately on the same day, prompted by the question of whether file storage was also
+full and whether old files could be purged. **Storage was not a contributor to the slowdown** — object
+bytes live in S3, not in the Postgres instance, so storage size has no effect on database or portal
+performance.
+
+### 5.1 Current state
+
+**28 GB across 25,853 objects in 47 buckets.** Not close to full; Supabase Pro includes 100 GB.
+
+Largest buckets: `quote-files` 10 GB (8,149 objects), `order-files` 3,786 MB, `ocr-uploads` 2,761 MB,
+`careers-videos` 1,924 MB, `public-submissions` 1,778 MB, `transcription-uploads` 1,620 MB.
+
+Objects older than 6 months total **2,594 MB / 2,092 objects — about 9% of storage**:
+
+| Bucket | Objects >6mo | Size |
+|---|---|---|
+| `quote-files` | 1,107 | 1,653 MB |
+| `ocr-uploads` | 202 | 686 MB |
+| `blog-post-images` | 84 | 165 MB |
+| `cethosweb-quote-files` | 39 | 30 MB |
+| `message-attachments` | 22 | 19 MB |
+| `quote-reference-files` | 23 | 17 MB |
+| `logos` | 527 | 11 MB |
+| others | 88 | ~13 MB |
+
+### 5.2 The storage retention policy has never run
+
+Four purge jobs fail every day — 7/7 runs in retained history:
+
+| Job | Schedule | Target |
+|---|---|---|
+| 44 `pdf-to-word-purge-120d` | `0 3 * * *` | `pdf-to-word`, 120 days |
+| 45 `public-submissions-purge-180d` | `15 3 * * *` | `public-submissions`, 180 days |
+| 46 `public-submissions-quarantine-purge-180d` | `30 3 * * *` | quarantine, 180 days |
+| 47 `customer-files-purge-365d` | `45 3 * * *` | `customer-files`, 365 days |
+
+```
+ERROR: Direct deletion from storage tables is not allowed. Use the Storage API instead.
+```
+
+`public.purge_storage_bucket(p_bucket_id, p_age_days)` issues a raw
+`DELETE FROM storage.objects`, which Supabase now blocks. So the documented retention policy is not
+being enforced on any bucket.
+
+**Do not simply repair this function.** Had the raw DELETE succeeded it would have removed metadata
+rows while leaving the bytes in S3 — still billed, permanently unreferenced, unrecoverable. Any
+replacement must go through the Storage API. `transcription-cleanup` already demonstrates the correct
+pattern (`admin.storage.from(...).remove(...)`), though note it deletes permanently with no archive step.
+
+### 5.3 Backup: an AWS S3 replica does exist
+
+It is **not configured inside the Supabase project**, which is why an in-project search finds nothing:
+no `wrappers`/`aws_s3` extension, no foreign servers, no AWS credentials among the 24 vault secrets,
+no analytics or external buckets, and no AWS reference in any cron job. Cross-region S3 replication is
+configured at the bucket/platform layer, invisible from Postgres and edge functions.
+
+**SOP-017 "Business Continuity and Disaster Recovery" v3 (active)** specifies it:
+
+> Object/file storage replicated daily to a separate region (versioned, 90-day retention;
+> file-recovery tested).
+
+> **S2 Storage loss** — restore objects from the versioned replica (pre-incident version); verify a
+> known file. RTO <= 24 h.
+
+Last verified **27 Jun 2026** — an S3 cross-region replica sample-restore, byte-identical, recorded in
+**CTS-REC-RST-004**, alongside an isolated-branch DR restore with re-verified hash-chain. BC tabletop
+script recorded as CTS-REC-BCT-001.
+
+SOP-017 names **Cital Enterprises** as contracted IT operations — the likely owner of the replica
+configuration, and where to obtain the bucket, lifecycle rule and current sync status.
+
+### 5.4 Why a flat 6-month purge is not advisable
+
+1. **90-day retention is disaster recovery, not archive.** The replica exists to restore after loss or
+   a region outage. Purging files older than 6 months would leave the replica as the only copy, expiring
+   90 days later — after which those files are gone everywhere.
+2. **Records retention is the binding constraint, not disk space.** SOP-017 records a 7-year retain
+   policy on Microsoft 365 / Google Drive. Deleting client source and target files at 6 months may
+   conflict with ISO 17100 record requirements or Welo/IQVIA contractual commitments. This is a QM
+   decision, not a storage one.
+3. **The reclaim is small.** 2.5 GB of 28 GB, against a 100 GB allowance. Nothing forces the decision.
+
+### 5.5 Dropbox sync covers only post-May-2026 files
+
+Separate from the S3 replica, `dropbox_file_syncs` records a Dropbox copy driven by `dropbox-sync`,
+`dropbox-team-sync` and `qms-dropbox-sync` (jobid 1850, weekly Sundays 03:30).
+
+Coverage does not extend to the old cohort: of the 2,092 objects older than 6 months, **2 have a
+successful sync record**. The earliest sync record of any kind is **2026-05-23** — the sync was switched
+on in late May, so everything in the >6-month cohort predates it.
+
+Current sync health also has gaps: **624 failed syncs** (548 team, 76 legacy) and 69 pending.
+
+### 5.6 Storage follow-ups
+
+1. Confirm with Cital that cross-region replication is still running — the last evidence is 27 Jun,
+   roughly three months old, and nothing inside Supabase monitors it. Given that four purge jobs and
+   three other crons have been failing silently for months, this blind spot is the pattern, not an
+   outlier.
+2. Have QM rule on retention obligations per document class before any deletion.
+3. Replace `purge_storage_bucket()` with a Storage API implementation, gated on per-bucket retention
+   that reflects those rules rather than a flat cutoff.
+4. Fix the 624 failed Dropbox syncs.
+5. Correct SOP-017 at next review: it states "Production database ~1.4 GB". It had grown to 3.17 GB
+   before this incident and is 586 MB after. That figure feeds the stated RTO/RPO.
+
+---
+
+## 6. Monitoring
 
 Watch these; each was a leading indicator this time:
 
