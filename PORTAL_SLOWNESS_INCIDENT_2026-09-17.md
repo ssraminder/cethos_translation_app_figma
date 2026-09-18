@@ -3,7 +3,8 @@
 **Reported:** portal.cethos.com slow for several days, long load times.
 **Database:** Supabase project `lmzoyezvsjgsxveoakdr` (Cethos_Translation_App)
 **Vercel project:** `cethos-app-figma-design-v1` (prj_ZmRYFSKmtj82CSdEDCPL9g0itpKE)
-**Status:** Root cause fixed and verified. Follow-ups below are open.
+**Status:** Root cause fixed; fix verified under full production load on 2026-09-18.
+Follow-ups below are open.
 
 ---
 
@@ -16,7 +17,8 @@ went to disk, PostgREST could not load its schema cache within timeout, and the
 portal received periodic HTTP 503 storms.
 
 Purging and rewriting those two tables took the database from **3,167 MB to
-586 MB** and cut p99 request latency from ~5–8 s to under 800 ms.
+586 MB** and cut p99 request latency from ~5–8 s to well under 1 s —
+confirmed the following day under full production load (section 3).
 
 Vercel was not involved. The portal is a static Vite SPA on CDN with no
 meaningful serverless runtime — zero runtime errors over 7 days, zero runtime
@@ -87,8 +89,24 @@ Latency across the maintenance window:
 | 20:45 (after) | 146 ms | 329 ms | 756 ms |
 
 pg_cron continued logging normally throughout (31 runs in the 3 minutes after
-the rewrite). Post-change figures cover ~15 minutes against tapering evening
-traffic — **confirm at the next business-hours peak.**
+the rewrite). Those post-change figures covered only ~15 minutes against tapering
+evening traffic, so they were flagged for confirmation under real load.
+
+**Confirmed under full production load, 2026-09-18** (05:00–14:00 UTC), at request
+volumes at or above the pre-incident daytime range:
+
+| Metric | Pre-fix, business hours | Post-fix, 18 Sep 05:00–14:00 |
+|---|---|---|
+| Requests / hour | 6,000–11,000 | 5,624–12,515 |
+| avg | 400–620 ms | **188–227 ms** |
+| p95 | 1.7–2.8 s | **365–532 ms** |
+| p99 | 5–8 s (peak 13.1 s) | **734–1,041 ms** |
+| Requests > 3 s per hour | up to 424 | **0–14** |
+
+The 08:00 UTC hour carried 12,515 requests — more than any pre-incident hour
+measured — at a p99 of 747 ms with **zero** requests over 3 seconds. Like-for-like
+at equal or higher load, p99 improved roughly sevenfold. The caveat on the original
+15-minute sample is closed.
 
 ---
 
